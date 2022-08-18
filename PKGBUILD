@@ -4,7 +4,6 @@
 
 pkgname=river-git
 _pkgname=${pkgname%-*}
-pkgver=0.1.0.r107.gbc610c8
 pkgrel=1
 pkgdesc='A dynamic tiling wayland compositor.'
 arch=('x86_64')
@@ -48,8 +47,29 @@ prepare() {
 }
 
 pkgver() {
-	cd "$srcdir/$_pkgname"
-	git describe --long | sed 's/^v//;s/-/.r/;s/-/./'
+        # Set the pkgver variable to be the same as what "river
+        # -version" will return. There is one caveat: pkgver string
+        # "is not allowed to contain colons, forward slashes, hyphens
+        # or whitespace" (man 5 PKGBUILD). Unreleased river versions
+        # contain the string "-dev", so substitute and "-" for "_"
+
+        local git_describe_long version commit_count commit_hash
+
+        # Extract version from line like "0.2.0-dev" from build.zig
+        # and replace - with _ (man 5 PKGBUILD says hyphens are not
+        # permitted).
+        version=$(sed -n 's/^const version = "\(.*\)";/\1/p' build.zig | tr '-' '_')
+
+        # Get the commit count and hash from git desribe
+        git_describe_long="$(git describe --long)"
+        IFS='-' read -ra gdl_array <<< "$git_describe_long"
+        commit_count=${gdl_array[1]}
+        commit_hash=${gdl_array[2]}
+
+        # Construct the correct version number (being sure to
+        # pop the "g" off the front of the commit_hash
+        pkgver="${version}.${commit_count}+${commit_hash:1}"
+        echo "$pkgver"
 }
 
 package() {

@@ -27,7 +27,6 @@ source=(
 	'git+https://github.com/ifreund/zig-wayland.git'
 	'git+https://github.com/swaywm/zig-wlroots.git'
 	'git+https://github.com/ifreund/zig-xkbcommon.git'
-	'river.desktop'
 )
 sha256sums=(
 	'SKIP'
@@ -60,6 +59,5 @@ package() {
 	install -d "$pkgdir/usr/share/$_pkgname"
 	cp -fR example "$pkgdir/usr/share/$_pkgname"
 
-	cd "$srcdir"
-	install -Dm644 river.desktop -t "$pkgdir/usr/share/wayland-sessions"
+	install -Dm644 contrib/river.desktop -t "$pkgdir/usr/share/wayland-sessions"
 }
